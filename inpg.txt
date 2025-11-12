@@ -1,0 +1,70 @@
+<?php
+
+// ===============
+// Scanner Asli
+// ===============
+echo '<style>body {background-color:#000;color:green;} body,td,th { font: 9pt Courier New;margin:0;vertical-align:top; } span,h1,a { color:#00ff00} span { font-weight: bolder; } h1 { border:1px solid #00ff00;padding: 2px 5px;font: 14pt Courier New;margin:0px; } div.content { padding: 5px;margin-left:5px;} a { text-decoration:none; } a:hover { background:#ff0000; } .ml1 { border:1px solid #444;padding:5px;margin:0;overflow: auto; } .bigarea { width:100%;height:250px; } input, textarea, select { margin:0;color:#00ff00;background-color:#000;border:1px solid #00ff00; font: 9pt Monospace,"Courier New"; } form { margin:0px; } .main th {text-align:left;} .main tr:hover{background-color:#5e5e5e;} .main td, th{vertical-align:middle;} pre {font-family:Courier,Monospace;} </style>';
+set_time_limit(0);
+error_reporting(0);
+
+$path = getcwd();
+if(isset($_GET['dir'])){
+    $path =$_GET['dir'];
+}
+
+if(isset($_GET['kill'])){
+    unlink(__FILE__);
+}
+echo "<a href='?kill'><font color='yellow'>[Self Delete]</font></a> | ";
+echo "<a href='?logout'><font color='red'>[Logout]</font></a><br>";
+echo '<form action="" method="get"> <input type="text" name="dir" value="'.$path.'" style="width: 548px;"> <input type="submit" value="scan"></form><br>';
+
+echo "CURRENT DIR: <font color='yellow'>$path</font><br>";
+if(isset($_GET['delete'])){
+    unlink($_GET['delete']);
+    $status = "<font color='red'>FAILED</font>";
+    if(!file_exists($_GET['delete'])){
+        $status = "<font color='yellow'>Success</font>";
+    }
+    echo "TRY TO DELETE: ".$_GET['delete']." $status <br>";exit;
+}
+
+scanBackdoor($path);
+
+function save($fname,$value){
+    $file = fopen($fname, "a");
+    fwrite($file, $value);
+    fclose($file);
+}
+
+function checkBackdoor($file_location){
+    global $path;
+    $patern = "#exec\(|gzinflate\(|file_put_contents\(|file_get_contents\(|system\(|passthru\(|shell_exec\(|move_uploaded_file\(|eval\(|base64#";
+    $contents = @file_get_contents($file_location);
+    if(strlen($contents)> 0){
+        if(preg_match($patern, strtolower($contents))){
+            echo "[+] Suspect file -> <a href='?delete=$file_location&dir=$path'><font color='yellow'>[DELETE]</font></a> <font color='red'>$file_location</font> <br>";
+            save("shell-found.txt","$file_location\n");
+            echo '<textarea name="content" cols="80" rows="15">'.htmlspecialchars($contents).'</textarea><br><br>';
+        }
+    }   
+}
+
+function scanBackdoor($current_dir){
+    if(is_readable($current_dir)){
+        $dir_location = scandir($current_dir);
+        foreach ($dir_location as $file) {
+            if($file === "." || $file === ".."){
+                continue;
+            }
+            $file_location = str_replace("//", "/",$current_dir.'/'.$file);
+            $nFile = substr($file, -4, 4);
+            if($nFile == ".php"){
+                checkBackdoor($file_location);
+            }else if(is_dir($file_location)){
+                scanBackdoor($file_location);
+            }
+        }
+    }
+}
+?>
